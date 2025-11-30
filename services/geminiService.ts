@@ -17,7 +17,7 @@ const getTimeContext = (): string => {
 
 // 1. Generate Lesson Text
 export const generateDailyLesson = async (path: SpiritualPath, language: Language): Promise<string> => {
-  const model = 'gemini-2.5-flash';
+  const model = 'gemini-pro';
   const timeContext = getTimeContext();
   
   const prompt = `
@@ -53,81 +53,18 @@ export const generateDailyLesson = async (path: SpiritualPath, language: Languag
 
 // 2. Generate Temple Background Image
 export const generateTempleBackground = async (path: SpiritualPath): Promise<string | null> => {
-  try {
-    const prompt = `A breathtaking, photorealistic, wide-angle view of a serene ${path} temple interior. 
-    Soft, divine lighting, atmospheric fog, ancient architecture, spiritual symbols of ${path}. 
-    Symmetrical composition, peaceful ambiance, high detail, 4k resolution. 
-    No people, just the sacred space.`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [{ text: prompt }]
-      }
-    });
-
-    // Extract image
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-  } catch (error) {
-    console.error("Bg Gen Error", error);
-    // Fallback images if generation fails or quotas hit
-    return `https://picsum.photos/1920/1080?grayscale&blur=2`;
-  }
-  return null;
+  // Directly return fallback image without calling Gemini API
+  return `https://picsum.photos/1920/1080?grayscale&blur=2`;
 };
 
 // 3. Generate Guru/Master Image
 export const generateGuruImage = async (path: SpiritualPath, gender: Gender): Promise<string | null> => {
-  try {
-    const prompt = `A portrait of a wise spiritual master of the ${path} tradition, ${gender} gender.
-    Sitting in meditation, serene expression, glowing aura, traditional robes.
-    Oil painting style, soft lighting, ethereal, benevolent.`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [{ text: prompt }]
-      }
-    });
-
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
-      }
-    }
-  } catch (error) {
-    console.error("Guru Gen Error", error);
-    return null;
-  }
+  // Feature disabled: return null immediately
   return null;
 };
 
 // 4. Generate Speech (TTS)
 export const generateSpeech = async (text: string, gender: Gender, tone: Tone): Promise<string | null> => {
-  const voiceName = getVoiceName(gender, tone);
-  
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName },
-            },
-        },
-      },
-    });
-
-    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    return base64Audio || null;
-  } catch (error) {
-    console.error("TTS Error", error);
-    return null;
-  }
+  // Feature disabled: return null immediately
+  return null;
 };
