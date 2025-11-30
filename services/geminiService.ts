@@ -2,7 +2,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import { SpiritualPath, Gender, Tone, Language } from '../types';
 import { getVoiceName } from '../constants';
 
-const API_KEY = process.env.API_KEY || ''; 
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 
 // Initialize GenAI
 const ai = new GoogleGenAI({ apiKey: API_KEY });
@@ -39,12 +39,16 @@ export const generateDailyLesson = async (path: SpiritualPath, language: Languag
     Ensure the content is fresh and unique, avoiding generic repetition.
   `;
 
-  const response = await ai.models.generateContent({
-    model,
-    contents: prompt,
-  });
-
-  return response.text || "Peace be with you. Today, we reflect on silence.";
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: prompt,
+    });
+    return response.text || "Peace be with you. Today, we reflect on silence.";
+  } catch (error) {
+    console.error("Lesson Generation Error", error);
+    return "Peace be with you. The spirits are quiet at this moment. Please try again later.";
+  }
 };
 
 // 2. Generate Temple Background Image
@@ -56,12 +60,9 @@ export const generateTempleBackground = async (path: SpiritualPath): Promise<str
     No people, just the sacred space.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image', // Using the standard generation model available
+      model: 'gemini-2.5-flash-image',
       contents: {
         parts: [{ text: prompt }]
-      },
-      config: {
-        // requesting 1:1 or 16:9 if possible, defaulting to square for this model usually
       }
     });
 
